@@ -3,6 +3,7 @@
 # Licensed under MIT
 
 import json
+import asyncio
 from telegram import Bot, Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 import mc_whitelist
@@ -29,10 +30,22 @@ def register(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("You already have an account registered.\nUnable to register.")
         return False
     update.message.reply_text("You are about to register your Minecraft account with playerID " + minecraft_id + " on our server.")
-    if mc_whitelist.add_to_whitelist(minecraft_id):
+    # Some async stuff, because sync doesn't work...
+    tasklist = [mc_whitelist.add_to_whitelist(minecraft_id)]
+    # Deprecated, because something weird could happen.
+    # loops = asyncio.get_event_loop()
+    try:
+        loops = asyncio.get_event_loop()
+    except RuntimeError as e:
+        if str(e).startswith('There is no current event loop in thread'):
+            loops = asyncio.new_event_loop()
+            asyncio.set_event_loop(loops)
+    status = loops.run_until_complete(asyncio.wait(tasklist))
+    if status:
         # Completed, now add to database.
         minecraft_uuid = mc_getuuid.getuuid(minecraft_id)
         mc_database.insert(telegram_id, minecraft_id, minecraft_uuid)
+        update.message.reply_text("Completed! We have just added your account to the whitelist. Launch your game and enjoy!")
         return True
     else:
         # User doesn't exist

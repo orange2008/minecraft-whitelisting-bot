@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from mcrcon import MCRcon
+from mc_rcon_async import MinecraftClient
 import json
 import requests
 
@@ -13,7 +13,7 @@ def readconfig():
     rconconf = [conf['rcon_host'], conf['rcon_port'], conf['rcon_password']]
     return rconconf
 
-def add_to_whitelist(username):
+async def add_to_whitelist(username):
     # Read configuration
     rconconf = readconfig()
     RCON_HOSTNAME = str(rconconf[0])
@@ -26,13 +26,13 @@ def add_to_whitelist(username):
         # The user doesn't exist
         return False
     # Open RCON session
-    with MCRcon(RCON_HOSTNAME, RCON_PASSWORD, port=RCON_PORT) as mcr:
-        resp = mcr.command("/whitelist add " + str(TO_BE_ADDED))
+    async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
+        resp = await mcr.send("whitelist add " + str(TO_BE_ADDED))
     if "from the whitelist" in resp:
         # Everything's good.
         return True
 
-def remove_from_whitelist(username):
+async def remove_from_whitelist(username):
     # Read configuration
     rconconf = readconfig()
     RCON_HOSTNAME = str(rconconf[0])
@@ -45,8 +45,8 @@ def remove_from_whitelist(username):
         # The user doesn't exist
         return False
     # Open RCON session
-    with MCRcon(RCON_HOSTNAME, RCON_PASSWORD, port=RCON_PORT) as mcr:
-        resp = mcr.command("/whitelist remove " + str(TO_BE_REMOVED))
+    async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
+        resp = mcr.send("/whitelist remove " + str(TO_BE_REMOVED))
     if "from the whitelist" in resp:
         # Everything's good.
         return True

@@ -20,5 +20,7 @@ Open `config.json` and fill all the blanks.
 
 > Remember to contact [@BotFather](https://t.me/BotFather) to obtain a bot token and enable rcon on your Minecraft Server.
 
+Then, use `./main.py` to fire up the system.
+
 ## Maintainer
 Frank Ruan -- [https://frank-ruan.com](https://frank-ruan.com)

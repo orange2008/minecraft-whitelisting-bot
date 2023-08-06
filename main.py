@@ -51,6 +51,38 @@ def register(update: Update, context: CallbackContext) -> None:
         # User doesn't exist
         update.message.reply_text("We cannot verify the existence of your account.\nPlease check the username you have submitted.")
         return False
+    
+def remove(update: Update, context: CallbackContext) -> None:
+    telegram_id = update.message.from_user.id
+    telegram_id = str(telegram_id)
+    if mc_database.check_not_exist_by_telegram_id(telegram_id):
+        update.message.reply_text("You never registered an account, thus you don't need to delete it.")
+        return False
+    # Fetch the player ID with Telegram ID
+    # The value should be a tuple
+    minecraft_id = mc_database.fetch_minecraft_id_by_telegram_id(telegram_id)
+    update.message.reply_text("You are about to delete your Minecraft account with playerID " + minecraft_id + " on our server.")
+    # Some async stuff, because sync doesn't work...
+    tasklist = [mc_whitelist.remove_from_whitelist(minecraft_id)]
+    # Deprecated, because something weird could happen.
+    # loops = asyncio.get_event_loop()
+    try:
+        loops = asyncio.get_event_loop()
+    except RuntimeError as e:
+        if str(e).startswith('There is no current event loop in thread'):
+            loops = asyncio.new_event_loop()
+            asyncio.set_event_loop(loops)
+    status = loops.run_until_complete(asyncio.wait(tasklist))
+    if status:
+        # Completed, now remove from database.
+        mc_database.delete(telegram_id)
+        update.message.reply_text("Completed! We have just deleted your account from the whitelist of our server. We hope to see you again.")
+        return True
+    else:
+        # User doesn't exist
+        update.message.reply_text("We cannot verify the existence of your account.\nPlease check the username you have submitted.")
+        return False
+
 def main():
     # Initialize the database if not exists
     print("Initializing database...")
@@ -62,6 +94,7 @@ def main():
     dp = updater.dispatcher
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("register", register))
+    dp.add_handler(CommandHandler("remove", remove))
 
     # Start looping
     print("Starting to loop...")

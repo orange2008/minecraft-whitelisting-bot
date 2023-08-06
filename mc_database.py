@@ -37,8 +37,6 @@ def delete(telegram_id):
     telegram_id = str(telegram_id)
     # Check existence
     if check_not_exist_by_telegram_id(telegram_id):
-        pass
-    else:
         return False
     conn = sqlite3.connect("db.sqlite3")
     cursor = conn.cursor()
@@ -46,6 +44,16 @@ def delete(telegram_id):
     conn.commit()
     conn.close()
     return True
+
+def fetch_minecraft_id_by_telegram_id(telegram_id):
+    telegram_id = str(telegram_id)
+    conn = sqlite3.connect("db.sqlite3")
+    cursor = conn.cursor()
+    cursor.execute("SELECT telegram_id, minecraft_id FROM users WHERE telegram_id=?", (telegram_id, ))
+    result_tuple = cursor.fetchone()
+    conn.close()
+    minecraft_id = result_tuple[-1]
+    return minecraft_id
 
 def check_not_exist_by_telegram_id(telegram_id):
     telegram_id = str(telegram_id)

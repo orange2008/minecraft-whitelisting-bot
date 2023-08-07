@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 from mc_rcon_async import MinecraftClient
 import json
-import requests
-
 import mc_getuuid
 
 

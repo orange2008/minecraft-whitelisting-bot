@@ -24,10 +24,13 @@ def register(update: Update, context: CallbackContext) -> None:
     telegram_id = update.message.from_user.id
     telegram_id = str(telegram_id)
     arguments = context.args
-    minecraft_id = arguments[0]
-    print(str(context.args))
+    try:
+        minecraft_id = arguments[0]
+    except IndexError:
+        mc_logging.log_empty(telegram_id)
+        update.message.reply_text("Please specify the username you want to sign up for.")
+        return False
     minecraft_id = str(minecraft_id)
-    print(str(minecraft_id))
     if mc_database.check_not_exist_by_telegram_id(telegram_id):
         pass
     else:

@@ -60,3 +60,8 @@ def log_delete_from_whitelist_but_not_exist(telegram_id, minecraft_id):
     log_content = "User " + str(telegram_id) + " tried to delete " + str(minecraft_id) + " from the whitelist, but the user was never in the whitelist."
     log_warning(log_content)
     return True
+
+def log_empty(telegram_id):
+    log_content = "User " + str(telegram_id) + " issued an empty query."
+    log_warning(log_content)
+    return True

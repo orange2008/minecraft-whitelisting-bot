@@ -47,7 +47,7 @@ async def remove_from_whitelist(username):
     if uid == False:
         # The user doesn't exist
         existence = False
-    if existence == False:
+    if existence != False:
         # Open RCON session
         async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
             resp = await mcr.send("whitelist remove " + str(TO_BE_REMOVED))

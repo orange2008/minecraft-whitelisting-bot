@@ -23,8 +23,11 @@ def start(update: Update, context: CallbackContext) -> None:
 def register(update: Update, context: CallbackContext) -> None:
     telegram_id = update.message.from_user.id
     telegram_id = str(telegram_id)
-    minecraft_id = ' '.join(context.args)
+    arguments = context.args
+    minecraft_id = arguments[0]
+    print(str(context.args))
     minecraft_id = str(minecraft_id)
+    print(str(minecraft_id))
     if mc_database.check_not_exist_by_telegram_id(telegram_id):
         pass
     else:
@@ -42,6 +45,7 @@ def register(update: Update, context: CallbackContext) -> None:
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
     status = loops.run_until_complete(mc_whitelist.add_to_whitelist(minecraft_id))
+    print("Last Status: " + str(status))
     if status == True:
         # Completed, now add to database.
         minecraft_uuid = mc_getuuid.getuuid(minecraft_id)
@@ -75,6 +79,7 @@ def remove(update: Update, context: CallbackContext) -> None:
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
     status = loops.run_until_complete(mc_whitelist.remove_from_whitelist(minecraft_id))
+    print("Last Status: " + str(status))
     if status == True:
         # Completed, now remove from database.
         mc_database.delete(telegram_id)

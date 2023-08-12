@@ -2,6 +2,7 @@
 from mc_rcon_async import MinecraftClient
 import json
 import mc_getuuid
+import asyncio
 
 
 def readconfig():
@@ -12,6 +13,7 @@ def readconfig():
     return rconconf
 
 async def add_to_whitelist(username):
+    existence = True
     # Read configuration
     rconconf = readconfig()
     RCON_HOSTNAME = str(rconconf[0])
@@ -20,17 +22,23 @@ async def add_to_whitelist(username):
     TO_BE_ADDED = str(username)
     # Get UUID
     uid = mc_getuuid.getuuid(str(username))
-    if uid == None:
+    if uid == False:
         # The user doesn't exist
+        existence = False
+    if existence != False:
+        # Open RCON session
+        async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
+            resp = await mcr.send("whitelist add " + str(TO_BE_ADDED))
+        if "from the whitelist" in resp:
+            # Everything's good.
+            await asyncio.sleep(0.1)
+            return True
+    else:
+        await asyncio.sleep(0.1)
         return False
-    # Open RCON session
-    async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
-        resp = await mcr.send("whitelist add " + str(TO_BE_ADDED))
-    if "from the whitelist" in resp:
-        # Everything's good.
-        return True
 
 async def remove_from_whitelist(username):
+    existence = True
     # Read configuration
     rconconf = readconfig()
     RCON_HOSTNAME = str(rconconf[0])
@@ -39,12 +47,17 @@ async def remove_from_whitelist(username):
     TO_BE_REMOVED = str(username)
     # Get UUID
     uid = mc_getuuid.getuuid(str(username))
-    if uid == None:
+    if uid == False:
         # The user doesn't exist
+        existence = False
+    if existence == False:
+        # Open RCON session
+        async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
+            resp = await mcr.send("whitelist remove " + str(TO_BE_REMOVED))
+        if "from the whitelist" in resp:
+            # Everything's good.
+            await asyncio.sleep(0.1)
+            return True
+    else:
+        await asyncio.sleep(0.1)
         return False
-    # Open RCON session
-    async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
-        resp = await mcr.send("whitelist remove " + str(TO_BE_REMOVED))
-    if "from the whitelist" in resp:
-        # Everything's good.
-        return True

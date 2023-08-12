@@ -9,11 +9,9 @@ def getuuid(username):
     req = requests.get(FINAL_URL)
     obj = req.json()
     # Deal with errors
-    try:
-        uid = obj['id']
-    except KeyError:
-        # User doesn't exist
-        return None
+    if int(req.status_code) != 200:
+        return False
+    uid = obj['id']
     # Format UUID
     formatted_uid = str(uuid.UUID(uid))
     return formatted_uid

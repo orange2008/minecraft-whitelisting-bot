@@ -44,14 +44,15 @@ def register(update: Update, context: CallbackContext) -> None:
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
     status = loops.run_until_complete(asyncio.wait(tasklist))
-    if status:
+    print("\n\n" + str(status))
+    if status == True:
         # Completed, now add to database.
         minecraft_uuid = mc_getuuid.getuuid(minecraft_id)
         mc_database.insert(telegram_id, minecraft_id, minecraft_uuid)
         update.message.reply_text("Completed! We have just added your account to the whitelist. Launch your game and enjoy!")
         mc_logging.log_add_to_whitelist(telegram_id, minecraft_id)
         return True
-    else:
+    elif status == False:
         # User doesn't exist
         update.message.reply_text("We cannot verify the existence of your account.\nPlease check the username you have submitted.")
         mc_logging.log_invalid_user(telegram_id, minecraft_id)
@@ -79,13 +80,13 @@ def remove(update: Update, context: CallbackContext) -> None:
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
     status = loops.run_until_complete(asyncio.wait(tasklist))
-    if status:
+    if status == True:
         # Completed, now remove from database.
         mc_database.delete(telegram_id)
         update.message.reply_text("Completed! We have just deleted your account from the whitelist of our server. We hope to see you again.")
         mc_logging.log_delete_from_whitelist(telegram_id, minecraft_id)
         return True
-    else:
+    elif status == False:
         # User doesn't exist
         update.message.reply_text("We cannot verify the existence of your account.\nPlease check the username you have submitted.")
         mc_logging.log_invalid_user(telegram_id, minecraft_id)

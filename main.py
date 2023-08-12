@@ -42,7 +42,6 @@ def register(update: Update, context: CallbackContext) -> None:
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
     status = loops.run_until_complete(mc_whitelist.add_to_whitelist(minecraft_id))
-    print("\n\n" + str(status))
     if status == True:
         # Completed, now add to database.
         minecraft_uuid = mc_getuuid.getuuid(minecraft_id)

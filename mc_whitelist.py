@@ -29,10 +29,7 @@ async def add_to_whitelist(username):
         # Open RCON session
         async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
             resp = await mcr.send("whitelist add " + str(TO_BE_ADDED))
-        if "from the whitelist" in resp:
-            # Everything's good.
-            await asyncio.sleep(0.1)
-            return True
+        return True
     else:
         await asyncio.sleep(0.1)
         return False
@@ -54,10 +51,7 @@ async def remove_from_whitelist(username):
         # Open RCON session
         async with MinecraftClient(RCON_HOSTNAME, RCON_PORT, RCON_PASSWORD) as mcr:
             resp = await mcr.send("whitelist remove " + str(TO_BE_REMOVED))
-        if "from the whitelist" in resp:
-            # Everything's good.
-            await asyncio.sleep(0.1)
-            return True
+        return True
     else:
         await asyncio.sleep(0.1)
         return False

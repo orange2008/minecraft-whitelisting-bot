@@ -33,8 +33,6 @@ def register(update: Update, context: CallbackContext) -> None:
         mc_logging.log_add_to_whitelist_but_exist(telegram_id)
         return False
     update.message.reply_text("You are about to register your Minecraft account with playerID " + minecraft_id + " on our server.")
-    # Some async stuff, because sync doesn't work...
-    tasklist = [mc_whitelist.add_to_whitelist(minecraft_id)]
     # Deprecated, because something weird could happen.
     # loops = asyncio.get_event_loop()
     try:
@@ -43,7 +41,7 @@ def register(update: Update, context: CallbackContext) -> None:
         if str(e).startswith('There is no current event loop in thread'):
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
-    status = loops.run_until_complete(asyncio.wait(tasklist))
+    status = loops.run_until_complete(mc_whitelist.add_to_whitelist(minecraft_id))
     print("\n\n" + str(status))
     if status == True:
         # Completed, now add to database.
@@ -69,8 +67,6 @@ def remove(update: Update, context: CallbackContext) -> None:
     # The value should be a tuple
     minecraft_id = mc_database.fetch_minecraft_id_by_telegram_id(telegram_id)
     update.message.reply_text("You are about to delete your Minecraft account with playerID " + minecraft_id + " on our server.")
-    # Some async stuff, because sync doesn't work...
-    tasklist = [mc_whitelist.remove_from_whitelist(minecraft_id)]
     # Deprecated, because something weird could happen.
     # loops = asyncio.get_event_loop()
     try:
@@ -79,7 +75,7 @@ def remove(update: Update, context: CallbackContext) -> None:
         if str(e).startswith('There is no current event loop in thread'):
             loops = asyncio.new_event_loop()
             asyncio.set_event_loop(loops)
-    status = loops.run_until_complete(asyncio.wait(tasklist))
+    status = loops.run_until_complete(mc_whitelist.remove_from_whitelist(minecraft_id))
     if status == True:
         # Completed, now remove from database.
         mc_database.delete(telegram_id)
